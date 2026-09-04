@@ -1,9 +1,3 @@
-// data.js
-
-// ================================
-// SUPER ATTRIBUTES
-// ================================
-
 const superAttributes = {
   "plan1": {
     "name": "Pro",
@@ -17,11 +11,6 @@ const superAttributes = {
   }
 };
 
-
-// ================================
-// POSTS DATA
-// ================================
-
 const posts = [
   {
     "id": 1,
@@ -30,7 +19,8 @@ const posts = [
     "image": "https://example.com/market.jpg",
     "href": "https://example.com/market",
     "plan1": "Pro",
-    "plan2": "Premium"
+    "plan2": "Premium",
+    "createdAt": "2026-09-04T18:39:43.329Z"
   },
   {
     "id": 2,
@@ -90,11 +80,6 @@ const posts = [
     "createdAt": "2026-09-04T18:27:04.342Z"
   }
 ];
-
-
-// ================================
-// MAKE AVAILABLE TO HTML
-// ================================
 
 window.superAttributes = superAttributes;
 window.posts = posts;
