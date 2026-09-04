@@ -78,6 +78,16 @@ const posts = [
     "plan1": "Pro",
     "plan2": "",
     "createdAt": "2026-09-04T18:20:45.555Z"
+  },
+  {
+    "id": 7,
+    "title": "Fuck",
+    "type": "Fuih",
+    "image": "https://example.com/image.jpg",
+    "href": "https://example.com/page",
+    "plan1": "",
+    "plan2": "Premium",
+    "createdAt": "2026-09-04T18:27:04.342Z"
   }
 ];
 
