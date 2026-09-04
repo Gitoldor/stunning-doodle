@@ -78,6 +78,26 @@ const posts = [
     "plan1": "",
     "plan2": "Premium",
     "createdAt": "2026-09-04T18:27:04.342Z"
+  },
+  {
+    "id": 8,
+    "title": "Yi",
+    "type": "7o",
+    "image": "https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.file",
+    "href": "https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.file",
+    "plan1": "Pro",
+    "plan2": "Premium",
+    "createdAt": "2026-09-04T18:42:09.810Z"
+  },
+  {
+    "id": 9,
+    "title": "Yoij",
+    "type": "Hinn",
+    "image": "https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.file",
+    "href": "https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.file",
+    "plan1": "Pro",
+    "plan2": "Premium",
+    "createdAt": "2026-09-04T18:42:28.702Z"
   }
 ];
 
