@@ -59,6 +59,16 @@ const posts = [
     "href": "https://example.com/image.jpg",
     "plan1": "Pro",
     "plan2": "Premium"
+  },
+  {
+    "id": 5,
+    "title": "Yo",
+    "type": "Hi",
+    "image": "https//to.com",
+    "href": "https//to.com",
+    "plan1": "Pro",
+    "plan2": "Premium",
+    "createdAt": "2026-09-04"
   }
 ];
 
