@@ -1,0 +1,404 @@
+name: Expire Premium Posts
+
+on:
+  schedule:
+    # Runs automatically every day at 00:00 UTC
+    - cron: "0 0 * * *"
+
+  # Allows manual testing too
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  expire-premium-posts:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # ========================================
+      # GET REPOSITORY
+      # ========================================
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+
+      # ========================================
+      # CHECK PREMIUM POSTS
+      # ========================================
+
+      - name: Remove expired Premium posts
+        run: |
+
+          node -e '
+
+          const fs = require("fs");
+          const vm = require("vm");
+
+
+          // ========================================
+          // SETTINGS
+          // ========================================
+
+          const FILE = "data.js";
+
+          const PREMIUM_DAYS = 30;
+
+
+          console.log("");
+          console.log("================================");
+          console.log("PREMIUM POST EXPIRY CHECK");
+          console.log("================================");
+
+
+          // ========================================
+          // CHECK FILE
+          // ========================================
+
+          if (!fs.existsSync(FILE)) {
+
+            console.error("ERROR: data.js not found.");
+
+            process.exit(1);
+          }
+
+
+          // ========================================
+          // READ data.js
+          // ========================================
+
+          const content =
+            fs.readFileSync(FILE, "utf8");
+
+
+          // ========================================
+          // READ POSTS ARRAY
+          // ========================================
+
+          const sandbox = {};
+
+          try {
+
+            vm.runInNewContext(
+              content +
+              "\nresult = posts;",
+              sandbox
+            );
+
+          } catch (error) {
+
+            console.error(
+              "ERROR: Could not read posts."
+            );
+
+            console.error(error.message);
+
+            process.exit(1);
+          }
+
+
+          const posts = sandbox.result;
+
+
+          // ========================================
+          // VALIDATE
+          // ========================================
+
+          if (!Array.isArray(posts)) {
+
+            console.error(
+              "ERROR: posts is not an array."
+            );
+
+            process.exit(1);
+          }
+
+
+          console.log(
+            "Total posts:",
+            posts.length
+          );
+
+
+          // ========================================
+          // CURRENT DATE
+          // ========================================
+
+          const now = new Date();
+
+
+          // ========================================
+          // FILTER POSTS
+          // ========================================
+
+          const remainingPosts = [];
+
+
+          for (const post of posts) {
+
+
+            // ----------------------------------------
+            // ONLY PREMIUM POSTS
+            // ----------------------------------------
+
+            if (
+              post.plan2 !== "Premium"
+            ) {
+
+              console.log(
+                "KEEP:",
+                post.id,
+                "- Not Premium"
+              );
+
+              remainingPosts.push(post);
+
+              continue;
+            }
+
+
+            // ----------------------------------------
+            // CHECK CREATED DATE
+            // ----------------------------------------
+
+            if (!post.createdAt) {
+
+              console.log(
+                "KEEP:",
+                post.id,
+                "- No createdAt"
+              );
+
+              remainingPosts.push(post);
+
+              continue;
+            }
+
+
+            const created =
+              new Date(
+                post.createdAt +
+                "T00:00:00Z"
+              );
+
+
+            // ----------------------------------------
+            // INVALID DATE
+            // ----------------------------------------
+
+            if (
+              Number.isNaN(
+                created.getTime()
+              )
+            ) {
+
+              console.log(
+                "KEEP:",
+                post.id,
+                "- Invalid createdAt"
+              );
+
+              remainingPosts.push(post);
+
+              continue;
+            }
+
+
+            // ----------------------------------------
+            // EXPIRY DATE
+            // ----------------------------------------
+
+            const expiry =
+              new Date(
+                created.getTime() +
+                PREMIUM_DAYS *
+                24 *
+                60 *
+                60 *
+                1000
+              );
+
+
+            // ----------------------------------------
+            // DELETE IF EXPIRED
+            // ----------------------------------------
+
+            if (now >= expiry) {
+
+              console.log(
+                "DELETE:",
+                post.id,
+                "| Premium",
+                "| Created:",
+                post.createdAt,
+                "| Expired:",
+                expiry.toISOString()
+              );
+
+            } else {
+
+              console.log(
+                "KEEP:",
+                post.id,
+                "| Premium",
+                "| Expires:",
+                expiry.toISOString()
+              );
+
+              remainingPosts.push(post);
+            }
+
+          }
+
+
+          // ========================================
+          // COUNT DELETED
+          // ========================================
+
+          const deleted =
+            posts.length -
+            remainingPosts.length;
+
+
+          console.log("");
+          console.log("================================");
+          console.log("RESULT");
+          console.log("================================");
+
+          console.log(
+            "Before:",
+            posts.length
+          );
+
+          console.log(
+            "After:",
+            remainingPosts.length
+          );
+
+          console.log(
+            "Deleted:",
+            deleted
+          );
+
+          console.log(
+            "================================");
+
+
+          // ========================================
+          // NOTHING TO DELETE
+          // ========================================
+
+          if (deleted === 0) {
+
+            console.log(
+              "No Premium posts expired."
+            );
+
+            process.exit(0);
+          }
+
+
+          // ========================================
+          // CREATE NEW data.js
+          // ========================================
+
+          const output =
+
+            "// data.js\n\n" +
+
+            "// ================================\n" +
+
+            "// SUPER ATTRIBUTES\n" +
+
+            "// ================================\n\n" +
+
+            "const superAttributes = " +
+
+            JSON.stringify(
+              sandbox.superAttributes,
+              null,
+              2
+            ) +
+
+            ";\n\n\n" +
+
+            "// ================================\n" +
+
+            "// POSTS DATA\n" +
+
+            "// ================================\n\n" +
+
+            "const posts = " +
+
+            JSON.stringify(
+              remainingPosts,
+              null,
+              2
+            ) +
+
+            ";\n\n\n" +
+
+            "// ================================\n" +
+
+            "// MAKE AVAILABLE TO HTML\n" +
+
+            "// ================================\n\n" +
+
+            "window.superAttributes = superAttributes;\n" +
+
+            "window.posts = posts;\n";
+
+
+          // ========================================
+          // SAVE
+          // ========================================
+
+          fs.writeFileSync(
+            FILE,
+            output,
+            "utf8"
+          );
+
+
+          console.log(
+            "data.js updated successfully."
+          );
+
+          '
+
+
+      # ========================================
+      # COMMIT CHANGES
+      # ========================================
+
+      - name: Commit changes
+
+        run: |
+
+          if git diff --quiet -- data.js; then
+
+            echo "No changes."
+
+            exit 0
+
+          fi
+
+
+          git config user.name \
+            "github-actions[bot]"
+
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+
+
+          git add data.js
+
+
+          git commit \
+            -m "Automatically remove expired Premium posts"
+
+
+          git push
