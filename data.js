@@ -5,16 +5,15 @@
 // ================================
 
 const superAttributes = {
-  plan1: {
-    name: "Pro",
-    startHour: 10,   // 10 AM
-    endHour: 22      // 10 PM
+  "plan1": {
+    "name": "Pro",
+    "startHour": 10,
+    "endHour": 22
   },
-
-  plan2: {
-    name: "Premium",
-    startHour: 0,    // 12 AM
-    endHour: 24      // Full 24 hours
+  "plan2": {
+    "name": "Premium",
+    "startHour": 0,
+    "endHour": 24
   }
 };
 
@@ -69,6 +68,16 @@ const posts = [
     "plan1": "Pro",
     "plan2": "Premium",
     "createdAt": "2026-09-04"
+  },
+  {
+    "id": 6,
+    "title": "Yo chut man",
+    "type": "Fuck you",
+    "image": "https://github.com/settings/personal-access-tokens/new",
+    "href": "https://github.com/settings/personal-access-tokens/new",
+    "plan1": "Pro",
+    "plan2": "",
+    "createdAt": "2026-09-04T18:20:45.555Z"
   }
 ];
 
