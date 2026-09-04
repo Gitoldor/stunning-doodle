@@ -62,10 +62,10 @@ const posts = [
   {
     "id": 5,
     "title": "Yo",
-    "type": "Hi",
+    "type": "Hio",
     "image": "https//to.com",
     "href": "https//to.com",
-    "plan1": "Pro",
+    "plan1": "",
     "plan2": "Premium",
     "createdAt": "2026-09-04"
   },
