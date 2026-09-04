@@ -2,10 +2,9 @@ name: Expire Premium Posts
 
 on:
   schedule:
-    # Runs automatically every day at 00:00 UTC
+    # Every day at 00:00 UTC
     - cron: "0 0 * * *"
 
-  # Allows manual testing too
   workflow_dispatch:
 
 permissions:
@@ -18,17 +17,9 @@ jobs:
 
     steps:
 
-      # ========================================
-      # GET REPOSITORY
-      # ========================================
-
       - name: Checkout repository
         uses: actions/checkout@v4
 
-
-      # ========================================
-      # CHECK PREMIUM POSTS
-      # ========================================
 
       - name: Remove expired Premium posts
         run: |
@@ -36,6 +27,7 @@ jobs:
           node -e '
 
           const fs = require("fs");
+
           const vm = require("vm");
 
 
@@ -48,9 +40,8 @@ jobs:
           const PREMIUM_DAYS = 30;
 
 
-          console.log("");
           console.log("================================");
-          console.log("PREMIUM POST EXPIRY CHECK");
+          console.log("PREMIUM EXPIRY CHECK");
           console.log("================================");
 
 
@@ -60,22 +51,45 @@ jobs:
 
           if (!fs.existsSync(FILE)) {
 
-            console.error("ERROR: data.js not found.");
+            console.error(
+              "ERROR: data.js not found."
+            );
 
             process.exit(1);
+
           }
 
 
           // ========================================
-          // READ data.js
+          // READ FILE
           // ========================================
 
-          const content =
-            fs.readFileSync(FILE, "utf8");
+          let content =
+            fs.readFileSync(
+              FILE,
+              "utf8"
+            );
 
 
           // ========================================
-          // READ POSTS ARRAY
+          // REMOVE BROWSER-ONLY CODE
+          // ========================================
+
+          content =
+            content.replace(
+              /window\.superAttributes\s*=\s*superAttributes\s*;/g,
+              ""
+            );
+
+          content =
+            content.replace(
+              /window\.posts\s*=\s*posts\s*;/g,
+              ""
+            );
+
+
+          // ========================================
+          // READ POSTS
           // ========================================
 
           const sandbox = {};
@@ -94,13 +108,17 @@ jobs:
               "ERROR: Could not read posts."
             );
 
-            console.error(error.message);
+            console.error(
+              error.message
+            );
 
             process.exit(1);
+
           }
 
 
-          const posts = sandbox.result;
+          const posts =
+            sandbox.result;
 
 
           // ========================================
@@ -114,20 +132,22 @@ jobs:
             );
 
             process.exit(1);
+
           }
 
 
           console.log(
-            "Total posts:",
+            "Posts found:",
             posts.length
           );
 
 
           // ========================================
-          // CURRENT DATE
+          // CURRENT TIME
           // ========================================
 
-          const now = new Date();
+          const now =
+            new Date();
 
 
           // ========================================
@@ -141,7 +161,7 @@ jobs:
 
 
             // ----------------------------------------
-            // ONLY PREMIUM POSTS
+            // NOT PREMIUM
             // ----------------------------------------
 
             if (
@@ -154,14 +174,17 @@ jobs:
                 "- Not Premium"
               );
 
-              remainingPosts.push(post);
+              remainingPosts.push(
+                post
+              );
 
               continue;
+
             }
 
 
             // ----------------------------------------
-            // CHECK CREATED DATE
+            // NO DATE
             // ----------------------------------------
 
             if (!post.createdAt) {
@@ -172,11 +195,18 @@ jobs:
                 "- No createdAt"
               );
 
-              remainingPosts.push(post);
+              remainingPosts.push(
+                post
+              );
 
               continue;
+
             }
 
+
+            // ----------------------------------------
+            // CREATED DATE
+            // ----------------------------------------
 
             const created =
               new Date(
@@ -184,10 +214,6 @@ jobs:
                 "T00:00:00Z"
               );
 
-
-            // ----------------------------------------
-            // INVALID DATE
-            // ----------------------------------------
 
             if (
               Number.isNaN(
@@ -198,12 +224,15 @@ jobs:
               console.log(
                 "KEEP:",
                 post.id,
-                "- Invalid createdAt"
+                "- Invalid date"
               );
 
-              remainingPosts.push(post);
+              remainingPosts.push(
+                post
+              );
 
               continue;
+
             }
 
 
@@ -223,39 +252,44 @@ jobs:
 
 
             // ----------------------------------------
-            // DELETE IF EXPIRED
+            // EXPIRED
             // ----------------------------------------
 
-            if (now >= expiry) {
+            if (
+              now >= expiry
+            ) {
 
               console.log(
                 "DELETE:",
                 post.id,
-                "| Premium",
                 "| Created:",
                 post.createdAt,
                 "| Expired:",
                 expiry.toISOString()
               );
 
-            } else {
+            }
+
+            else {
 
               console.log(
                 "KEEP:",
                 post.id,
-                "| Premium",
                 "| Expires:",
                 expiry.toISOString()
               );
 
-              remainingPosts.push(post);
+              remainingPosts.push(
+                post
+              );
+
             }
 
           }
 
 
           // ========================================
-          // COUNT DELETED
+          // COUNT
           // ========================================
 
           const deleted =
@@ -264,10 +298,6 @@ jobs:
 
 
           console.log("");
-          console.log("================================");
-          console.log("RESULT");
-          console.log("================================");
-
           console.log(
             "Before:",
             posts.length
@@ -283,9 +313,6 @@ jobs:
             deleted
           );
 
-          console.log(
-            "================================");
-
 
           // ========================================
           // NOTHING TO DELETE
@@ -294,54 +321,43 @@ jobs:
           if (deleted === 0) {
 
             console.log(
-              "No Premium posts expired."
+              "Nothing expired."
             );
 
             process.exit(0);
+
           }
 
 
           // ========================================
-          // CREATE NEW data.js
+          // REPLACE POSTS ARRAY ONLY
           // ========================================
 
-          const output =
-
-            "// data.js\n\n" +
-
-            "// ================================\n" +
-
-            "// SUPER ATTRIBUTES\n" +
-
-            "// ================================\n\n" +
-
-            "const superAttributes = " +
-
-            JSON.stringify(
-              sandbox.superAttributes,
-              null,
-              2
-            ) +
-
-            ";\n\n\n" +
-
-            "// ================================\n" +
-
-            "// POSTS DATA\n" +
-
-            "// ================================\n\n" +
-
-            "const posts = " +
-
+          const newPosts =
             JSON.stringify(
               remainingPosts,
               null,
               2
-            ) +
+            );
 
-            ";\n\n\n" +
 
-            "// ================================\n" +
+          const updatedContent =
+            content.replace(
+              /const\s+posts\s*=\s*\[[\s\S]*?\];/,
+              "const posts = " +
+              newPosts +
+              ";"
+            );
+
+
+          // ========================================
+          // RESTORE BROWSER CODE
+          // ========================================
+
+          const finalContent =
+            updatedContent +
+
+            "\n\n// ================================\n" +
 
             "// MAKE AVAILABLE TO HTML\n" +
 
@@ -358,7 +374,7 @@ jobs:
 
           fs.writeFileSync(
             FILE,
-            output,
+            finalContent,
             "utf8"
           );
 
@@ -371,16 +387,15 @@ jobs:
 
 
       # ========================================
-      # COMMIT CHANGES
+      # COMMIT
       # ========================================
 
       - name: Commit changes
-
         run: |
 
           if git diff --quiet -- data.js; then
 
-            echo "No changes."
+            echo "No changes to commit."
 
             exit 0
 
