@@ -24,37 +24,42 @@ const superAttributes = {
 // ================================
 
 const posts = [
-
   {
-    id: 1,
-    title: "Sawantwadi Market",
-    type: "Market",
-    image: "https://example.com/market.jpg",
-    href: "https://example.com/market",
-    plan1: "Pro",
-    plan2: "Premium"
+    "id": 1,
+    "title": "Sawantwadi Market",
+    "type": "Market",
+    "image": "https://example.com/market.jpg",
+    "href": "https://example.com/market",
+    "plan1": "Pro",
+    "plan2": "Premium"
   },
-
   {
-    id: 2,
-    title: "Moti Talav",
-    type: "Scenic",
-    image: "https://example.com/motitalav.jpg",
-    href: "https://example.com/motitalav",
-    plan1: "Pro",
-    plan2: "Premium"
+    "id": 2,
+    "title": "Moti Talav",
+    "type": "Scenic",
+    "image": "https://example.com/motitalav.jpg",
+    "href": "https://example.com/motitalav",
+    "plan1": "Pro",
+    "plan2": "Premium"
   },
-
   {
-    id: 3,
-    title: "Local Food Spot",
-    type: "Food",
-    image: "https://example.com/food.jpg",
-    href: "https://example.com/food",
-    plan1: "Pro",
-    plan2: "Premium"
+    "id": 3,
+    "title": "Local Food Spot",
+    "type": "Food",
+    "image": "https://example.com/food.jpg",
+    "href": "https://example.com/food",
+    "plan1": "Pro",
+    "plan2": "Premium"
+  },
+  {
+    "id": 4,
+    "title": "Yo bubu gona",
+    "type": "Youjok",
+    "image": "https://example.com/image.jpg",
+    "href": "https://example.com/image.jpg",
+    "plan1": "Pro",
+    "plan2": "Premium"
   }
-
 ];
 
 
